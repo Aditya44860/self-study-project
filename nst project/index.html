@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>NST notebook</title>
+    <link rel="stylesheet" href="index.css"/>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img alt="dropdown newton school logo" src="https://d3dyfaf3iutrxo.cloudfront.net/general/upload/7ac8663769d24cd09fa06dc7d4f0830c.png" class="logo_img">
+            <h1 class="heading">Notebook</h1>
+        </div>
+     
+        
+        <nav>
+            <ul class="tabs">
+                <li>Home</li>
+                <li>Profile</li>
+                <li>Progress</li>
+                <li>Settings</li>
+            </ul> 
+        </nav>
+    </header>
+    <div class="container">
+        <main>
+            <div class="left_table">
+                <div class="habit">
+                    <h2 style="font-family: 'Times New Roman', Times, serif;font-weight: 500;">Habit Check:</h2>
+                    <div class="addbar_left">
+                        <input type="text" placeholder="Habit" id="taskInput">
+                        <button id="addTaskBtn">➕</button>
+                    </div>
+                    <ul id="habit_list">
+    
+                    </ul>
+                </div>
+            </div>
+
+            <div class="main_table">
+                <div class="timer-container">
+                    <div class="circle">
+                        <!-- Add SVG progress ring -->
+                        <svg class="progress-ring" width="300" height="300">
+                            <!-- Background circle -->
+                            <circle
+                                cx="150"
+                                cy="150"
+                                r="145"
+                                stroke="#e0e0e0"
+                                stroke-width="4"
+                                fill="white"
+                            />
+                            <!-- Progress circle -->
+                            <circle
+                                id="progress-ring-circle"
+                                cx="150"
+                                cy="150"
+                                r="145"
+                                stroke="#007bff"
+                                stroke-width="4"
+                                fill="transparent"
+                                stroke-dasharray="911"
+                                stroke-dashoffset="911"
+                                transform="rotate(-90 150 150)"
+                            />
+                        </svg>
+                        <div class="time-fields">
+                            <input type="text" class="time-field" id="hours" placeholder="00" maxlength="2">
+                            <span class="colon">:</span>
+                            <input type="text" class="time-field" id="minutes" placeholder="00" maxlength="2">
+                            <span class="colon">:</span>
+                            <input type="text" class="time-field" id="seconds" placeholder="00" maxlength="2">
+                        </div>
+                    </div>
+            
+                    <div class="controls">
+                        <button id="startBtn">Start</button>
+                        <button id="pauseBtn" disabled>Pause</button>
+                        <button id="resetBtn">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right_table">
+                <div class="toDO">
+                    <h2 style="font-family: 'Times New Roman', Times, serif;font-weight: 500;">Today's Tasks:</h2>
+                    <div class="addbar">
+                        <input type="text" id="input-box" placeholder="Add Your Text Here">
+                        <button id="task_add">Add</button>
+                    </div>
+                    <ul id="tasks">
+            
+                    </ul>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    
+<script src="./notebook.js"></script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circular Timer</title>
+    <style>
+        /* Keep original styling */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+
+        .timer-container {
+            position: relative;
+            width: 300px;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .circle {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        /* Add SVG positioning */
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .time-fields {
+            display: flex;
+            gap: 5px;
+            width: 160px;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .time-field {
+            width: 60px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-size: inherit;
+            outline: none;
+            padding: 0;
+        }
+
+        .colon {
+            font-size: inherit;
+            margin: 0 5px;
+        }
+
+        .time-fields input[readonly] {
+            color: #777;
+            cursor: default;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <div class="circle">
+            <!-- Add SVG progress ring -->
+            <svg class="progress-ring" width="300" height="300">
+                <!-- Background circle -->
+                <circle
+                    cx="150"
+                    cy="150"
+                    r="145"
+                    stroke="#e0e0e0"
+                    stroke-width="4"
+                    fill="white"
+                />
+                <!-- Progress circle -->
+                <circle
+                    id="progress-ring-circle"
+                    cx="150"
+                    cy="150"
+                    r="145"
+                    stroke="#007bff"
+                    stroke-width="4"
+                    fill="transparent"
+                    stroke-dasharray="911"
+                    stroke-dashoffset="911"
+                    transform="rotate(-90 150 150)"
+                />
+            </svg>
+            <div class="time-fields">
+                <input type="text" class="time-field" id="hours" value="00" maxlength="2">
+                <span class="colon">:</span>
+                <input type="text" class="time-field" id="minutes" value="00" maxlength="2">
+                <span class="colon">:</span>
+                <input type="text" class="time-field" id="seconds" value="00" maxlength="2">
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn">Start</button>
+            <button id="pauseBtn" disabled>Pause</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        // Get all UI elements
+        const hoursInput = document.getElementById("hours");
+        const minutesInput = document.getElementById("minutes");
+        const secondsInput = document.getElementById("seconds");
+        const startBtn = document.getElementById("startBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const progressRing = document.getElementById("progress-ring-circle");
+
+        // Calculate circle circumference (2 * PI * radius)
+        const CIRCUMFERENCE = 2 * Math.PI * 145;
+        progressRing.style.strokeDasharray = `${CIRCUMFERENCE}`;
+        progressRing.style.strokeDashoffset = CIRCUMFERENCE;
+
+        // Timer variables
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval;
+        let isRunning = false;
+        let totalSeconds = 0;
+
+        // Add event listeners
+        hoursInput.addEventListener("input", updateTotalSeconds);
+        minutesInput.addEventListener("input", updateTotalSeconds);
+        secondsInput.addEventListener("input", updateTotalSeconds);
+        startBtn.addEventListener("click", startTimer);
+        pauseBtn.addEventListener("click", pauseTimer);
+        resetBtn.addEventListener("click", resetTimer);
+
+        // Update progress ring based on remaining time
+        function updateProgress(remainingSeconds) {
+            const progress = remainingSeconds / totalSeconds;
+            const offset = CIRCUMFERENCE * (1 - progress);
+            progressRing.style.strokeDashoffset = offset;
+        }
+
+        function startTimer() {
+            if (!isRunning && totalSeconds > 0) {
+                // Calculate start time and begin interval
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(updateTimer, 1000);
+                isRunning = true;
+
+                // Disable inputs while running
+                hoursInput.readOnly = true;
+                minutesInput.readOnly = true;
+                secondsInput.readOnly = true;
+
+                // Update button states
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                // Stop timer and update states
+                clearInterval(timerInterval);
+                isRunning = false;
+
+                // Enable inputs
+                hoursInput.readOnly = false;
+                minutesInput.readOnly = false;
+                secondsInput.readOnly = false;
+
+                // Update button states
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+            }
+        }
+
+        function resetTimer() {
+            // Stop timer and reset all values
+            clearInterval(timerInterval);
+            elapsedTime = 0;
+            hoursInput.value = "00";
+            minutesInput.value = "00";
+            secondsInput.value = "00";
+            updateTotalSeconds();
+            progressRing.style.strokeDashoffset = CIRCUMFERENCE;
+            isRunning = false;
+
+            // Enable inputs
+            hoursInput.readOnly = false;
+            minutesInput.readOnly = false;
+            secondsInput.readOnly = false;
+
+            // Reset button states
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+        }
+
+        function updateTimer() {
+            // Calculate remaining time
+            elapsedTime = Date.now() - startTime;
+            let remainingSeconds = totalSeconds - Math.round(elapsedTime / 1000);
+
+            if (remainingSeconds < 0) {
+                // Timer finished
+                remainingSeconds = 0;
+                clearInterval(timerInterval);
+                isRunning = false;
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+
+                // Enable inputs
+                hoursInput.readOnly = false;
+                minutesInput.readOnly = false;
+                secondsInput.readOnly = false;
+            }
+
+            // Update display
+            const hours = Math.floor(remainingSeconds / 3600);
+            const minutes = Math.floor((remainingSeconds % 3600) / 60);
+            const seconds = remainingSeconds % 60;
+
+            hoursInput.value = hours.toString().padStart(2, '0');
+            minutesInput.value = minutes.toString().padStart(2, '0');
+            secondsInput.value = seconds.toString().padStart(2, '0');
+            
+            // Update progress ring
+            updateProgress(remainingSeconds);
+        }
+
+        function updateTotalSeconds() {
+            // Calculate total seconds from inputs
+            const hours = parseInt(hoursInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            totalSeconds = hours * 3600 + minutes * 60 + seconds;
+            
+            // Reset progress ring to match input time
+            updateProgress(totalSeconds);
+        }
+
+        // Initialize
+        updateTotalSeconds();
+    </script>
+</body>
+</html>
